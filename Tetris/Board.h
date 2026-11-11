@@ -1,6 +1,9 @@
 #pragma once
 #include <vector>
 #include "Piece.h"
+#include <string>
+#include <istream>
+
 
 const int board_width = 10;
 const int board_height = 20;
@@ -15,6 +18,8 @@ public:
     int clearRow(int y); 
     int getCell(int x, int y) const;
     void setCell(int x, int y, int value);
+    std::string serialize() const;
+    void deserialize(std::istream& in);
 
 private:
     bool isRowFull(int y) const;

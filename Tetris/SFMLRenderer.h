@@ -14,7 +14,7 @@ public:
 private:
     void drawCell(int x, int y, sf::Color color);
     void drawText(const std::string& str, float x, float y, int size);
-    sf::Color getPieceColor(char type) const;
+    sf::Color getPieceColor(PieceType type) const;
     void drawBox(float x, float y, float w, float h, sf::Color fill);
     void waitForEnter();
 

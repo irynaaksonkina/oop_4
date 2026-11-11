@@ -15,7 +15,7 @@ void Game::run() {
         return;
     }
     engine.handleAction(choice);
-    if (engine.getState() != GameState::Playing) {
+    if (engine.getState() == GameState::Menu) {
         engine.handleAction(Action::NewGame);
     }
     draw();

@@ -12,14 +12,14 @@ SFMLRenderer::SFMLRenderer()
     boardY = 20;
 }
 
-sf::Color SFMLRenderer::getPieceColor(char type) const {
-    if (type == 'I') return sf::Color(0, 200, 220);
-    if (type == 'O') return sf::Color(240, 220, 0);
-    if (type == 'T') return sf::Color(160, 60, 200);
-    if (type == 'S') return sf::Color(60, 200, 60);
-    if (type == 'Z') return sf::Color(220, 50, 50);
-    if (type == 'J') return sf::Color(50, 80, 220);
-    if (type == 'L') return sf::Color(240, 140, 0);
+sf::Color SFMLRenderer::getPieceColor(PieceType type) const {
+    if (type == PieceType::I) return sf::Color(0, 200, 220);
+    if (type == PieceType::O) return sf::Color(240, 220, 0);
+    if (type == PieceType::T) return sf::Color(160, 60, 200);
+    if (type == PieceType::S) return sf::Color(60, 200, 60);
+    if (type == PieceType::Z) return sf::Color(220, 50, 50);
+    if (type == PieceType::J) return sf::Color(50, 80, 220);
+    if (type == PieceType::L) return sf::Color(240, 140, 0);
     return sf::Color::White;
 }
 
@@ -129,10 +129,10 @@ void SFMLRenderer::render(const Board& board, const Piece& piece,
 
     window.clear(sf::Color(15, 15, 25));
 
-    // рамка поля
+    //рамка поля
     drawBox((float)(boardX - 4), (float)(boardY - 4), 308, 608, sf::Color(25, 25, 40));
 
-    // поле
+    //поле
     for (int y = 0; y < board_height; y++) {
         for (int x = 0; x < board_width; x++) {
             sf::Color color(30, 30, 45);
@@ -143,7 +143,7 @@ void SFMLRenderer::render(const Board& board, const Piece& piece,
         }
     }
 
-    // фігура, що падає
+    //фігура, що падає
     for (int i = 0; i < piece.getCellCount(); i++) {
         int x = piece.getCellX(i);
         int y = piece.getCellY(i);
@@ -152,19 +152,19 @@ void SFMLRenderer::render(const Board& board, const Piece& piece,
         }
     }
 
-    // панель з рахунком
+    //панель з рахунком
     drawBox(340, 16, 160, 150, sf::Color(25, 25, 40));
     drawText("SCORE", 355, 28, 18);
     drawText(std::to_string(score.getCurrent()), 355, 50, 32);
     drawText("BEST", 355, 95, 18);
     drawText(std::to_string(score.getBest()), 355, 117, 32);
 
-    // панель з керуванням
+    //панель з керуванням
     drawBox(340, 380, 160, 240, sf::Color(25, 25, 40));
     drawText("CONTROLS", 355, 392, 20);
     drawText("A/D - move\nW - rotate\nS - down\nP - pause\nV - save\nQ - quit", 355, 430, 18);
 
-    // затемнення і напис
+    //затемнення і напис
     if (state == GameState::Paused || state == GameState::GameOver || state == GameState::Victory) {
         sf::RectangleShape dark(sf::Vector2f(300, 600));
         dark.setPosition(sf::Vector2f((float)boardX, (float)boardY));

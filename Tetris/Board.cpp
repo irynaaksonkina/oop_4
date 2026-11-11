@@ -82,3 +82,27 @@ void Board::setCell(int x, int y, int value) {
         grid[y][x] = value;
     }
 }
+
+std::string Board::serialize() const {
+    std::string data = "";
+    for (int y = 0; y < board_height; y++) {
+        for (int x = 0; x < board_width; x++) {
+            data += (grid[y][x] == 0) ? '0' : '1';
+        }
+        data += '\n';
+    }
+    return data;
+}
+
+void Board::deserialize(std::istream& in) {
+    grid = std::vector<std::vector<int>>(board_height, std::vector<int>(board_width, 0));
+    for (int y = 0; y < board_height; y++) {
+        std::string line;
+        in >> line;
+        for (int x = 0; x < board_width && x < (int)line.size(); x++) {
+            if (line[x] == '1') {
+                grid[y][x] = 1;
+            }
+        }
+    }
+}

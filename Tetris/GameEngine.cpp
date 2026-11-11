@@ -1,5 +1,4 @@
 #include "GameEngine.h"
-#include "LineCleaner.h"
 #include <string>
 #include <sstream>
 
@@ -54,17 +53,7 @@ void GameEngine::tick() {
 }
 
 void GameEngine::lockPiece() {
-    LineCleaner* cleaner = dynamic_cast<LineCleaner*>(currentPiece.get());
-
-    if (cleaner != nullptr) {
-        int destroyed = cleaner->clean(board);
-        score.addCleanerPoints(destroyed);
-    }
-    else {
-        board.placePiece(*currentPiece);
-        int lines = board.clearFullLines();
-        score.addLines(lines);
-    }
+    currentPiece->land(board, score);
 
     if (score.isVictory()) {
         finishGame(GameState::Victory);
@@ -96,19 +85,14 @@ void GameEngine::togglePause() {
 }
 
 void GameEngine::saveGame() {
-    std::string data = "";
-    for (int y = 0; y < board_height; y++) {
-        for (int x = 0; x < board_width; x++) {
-            if (board.getCell(x, y) == 0) {
-                data = data + "0";
-            }
-            else {
-                data = data + "1";
-            }
-        }
-        data = data + "\n";
-    }
+    std::string data = board.serialize();
     data = data + std::to_string(score.getCurrent()) + "\n";
+    data = data + std::to_string(static_cast<int>(currentPiece->getType())) + " "
+        + std::to_string(currentPiece->getX()) + " "
+        + std::to_string(currentPiece->getY()) + " "
+        + std::to_string(currentPiece->getRotation()) + "\n";
+    data = data + std::to_string(generator.getCounter()) + "\n";
+    data = data + (state == GameState::Paused ? "1" : "0") + std::string("\n");
     storage.saveGame(data);
 }
 
@@ -119,29 +103,45 @@ void GameEngine::loadGame() {
     }
 
     std::istringstream in(data);
-    board = Board();
-    for (int y = 0; y < board_height; y++) {
-        std::string line;
-        in >> line;
-        for (int x = 0; x < board_width && x < (int)line.size(); x++) {
-            if (line[x] == '1') {
-                board.setCell(x, y, 1);
-            }
-        }
-    }
+    board.deserialize(in);
 
     int savedScore = 0;
     in >> savedScore;
     score.setCurrent(savedScore);
     score.setBest(storage.loadBestScore());
 
-    generator.reset();
-    currentPiece = generator.createNextPiece();
+    int type = 0;
+    int px = 0, py = 0, rot = 0, counter = 0, paused = 0;
+    bool hasPiece = static_cast<bool>(in >> type >> px >> py >> rot >> counter >> paused)
+        && type >= 0 && type <= static_cast<int>(PieceType::Cleaner);
+
+    if (hasPiece) {
+        generator.setCounter(counter);
+        currentPiece = generator.createPiece(static_cast<PieceType>(type));
+        currentPiece->restore(px, py, rot);
+        state = paused ? GameState::Paused : GameState::Playing;
+    }
+    else {
+        generator.reset();
+        currentPiece = generator.createNextPiece();
+        state = GameState::Playing;
+    }
     landed = false;
-    state = GameState::Playing;
+
+    if (!canMove(0, 0)) {
+        finishGame(GameState::GameOver);
+    }
 }
 
 void GameEngine::handleAction(Action a) {
+
+    if (a == Action::Quit) {
+        if (state == GameState::Playing || state == GameState::Paused) {
+            finishGame(GameState::GameOver);
+        }
+        return;
+    }
+
     if (a == Action::NewGame) {
         startNewGame();
         return;

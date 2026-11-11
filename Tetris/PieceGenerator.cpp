@@ -10,15 +10,29 @@ PieceGenerator::PieceGenerator() {
 
 std::unique_ptr<Piece> PieceGenerator::createNextPiece() {
     pieceCounter++;
-
+    
     if (pieceCounter % 10 == 0) {
-        return std::unique_ptr<Piece>(new LineCleaner());
+        return createPiece(PieceType::Cleaner);
     }
 
-    const char types[7] = { 'I', 'O', 'T', 'S', 'Z', 'J', 'L' };
+    const PieceType types[7] = { PieceType::I, PieceType::O, PieceType::T, PieceType::S,
+                                 PieceType::Z, PieceType::J, PieceType::L };
     int index = rand() % 7;
-    return std::unique_ptr<Piece>(new Piece(types[index]));
+    return createPiece(types[index]);
 }
+
+std::unique_ptr<Piece> PieceGenerator::createPiece(PieceType type) const {
+    if (type == PieceType::O) {
+        return std::unique_ptr<Piece>(new OPiece());
+    }
+    if (type == PieceType::Cleaner) {
+        return std::unique_ptr<Piece>(new LineCleaner());
+    }
+    return std::unique_ptr<Piece>(new Piece(type));
+}
+
+int PieceGenerator::getCounter() const { return pieceCounter; }
+void PieceGenerator::setCounter(int value) { pieceCounter = value; }
 
 void PieceGenerator::reset() {
     pieceCounter = 0;

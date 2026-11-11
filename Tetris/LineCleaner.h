@@ -5,5 +5,6 @@
 class LineCleaner : public Piece {
 public:
     LineCleaner();
-    int clean(Board& b);
+    void land(Board& b, Score& s) override;
+    void rotate() override {}
 };

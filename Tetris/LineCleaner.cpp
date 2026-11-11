@@ -1,10 +1,10 @@
 #include "LineCleaner.h"
+#include "Board.h"
+#include "Score.h"
 
-LineCleaner::LineCleaner() : Piece('C') {
-    cellCount = 1;
+LineCleaner::LineCleaner() : Piece(PieceType::Cleaner) {
 }
 
-int LineCleaner::clean(Board& b) {
-    int row = getCellY(0);
-    return b.clearRow(row);
+void LineCleaner::land(Board& b, Score& s) {
+    s.addCleanerPoints(b.clearRow(getCellY(0)));
 }
